@@ -6,6 +6,7 @@ import {
   Platform,
   Text,
   AsyncStorage,
+  DeviceEventEmitter,
 } from 'react-native';
 import { resetAction, MainNavigator } from '../config/react-navigation';
 import { NavigationActions } from 'react-navigation';
@@ -29,6 +30,13 @@ class WelcomeScreen extends React.Component {
 
 }
 
+const getStateFromSources = () => {
+  let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    return {
+      dataSource: ds.cloneWithRows(MultipeerConnectivity.getAllPeers())
+    };
+}
+
 class WelcomeView extends React.Component {
 
   _signUp = () => {
@@ -36,7 +44,19 @@ class WelcomeView extends React.Component {
   }
 
   _login = () => {
-    this.props.navigation.navigate('Login')
+    this.props.navigation.navigate('AppLogin')
+  }
+
+  _invite(peer) {
+    MultipeerConnectivity.invite(peer.id);
+  }
+  
+  _onChange() {
+    this.setState(getStateFromSources());
+  }
+
+  getInitialState = () => {
+    return getStateFromSources()
   }
 
   render() {
